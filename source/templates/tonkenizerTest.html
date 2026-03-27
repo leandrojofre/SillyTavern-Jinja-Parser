@@ -1,0 +1,19 @@
+<div class="flex-container flex-column separator-bottom" id="jinja-parser-output-box">
+    <label class="flex-container" for="jinja-parser-offline-mode">
+        <input id="jinja-parser-offline-mode" type="checkbox" />
+        <span>Offline mode</span>
+    </label>
+
+    <label class="flex-container" for="jinja-parser-chat-template">
+        <input type="file" accept=".jinja" id="jinja-parser-chat-template">
+        <span><code>chat_template.jinja</code> file</span>
+        <button class="menu_button">Upload</button>
+    </label>
+
+    <input type="text" class="text_pole flex1 m-0" id="jinja-parser-model-id">
+
+    <button type="button" class="menu_button text-nowrap" id="jinja-parser-output-parse">Fetch tokenizer</button>
+
+    <span class="jinja-parser-output text-muted text-newlines bg-black"></span>
+    <span class="jinja-parser-token-ids text-muted text-wrap-all bg-black"></span>
+</div>

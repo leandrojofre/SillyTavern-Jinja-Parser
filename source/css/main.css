@@ -69,6 +69,18 @@
         color: color-mix(in srgb, currentColor 85%, black);
     }
 
+    .text-nowrap {
+        text-wrap-mode: nowrap;
+    }
+
+    .text-wrap-all {
+        overflow-wrap: anywhere;
+    }
+
+    .text-newlines {
+        white-space: break-spaces;
+    }
+
     .fw-bolder {
         font-weight: bolder;
     }
@@ -87,6 +99,10 @@
 
     .bg-user {
         background-color: var(--SmartThemeUserMesBlurTintColor);
+    }
+
+    .bg-black {
+        background-color: var(--black30a);
     }
 
     .border {

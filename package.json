@@ -2,13 +2,17 @@
 	"private": true,
 	"scripts": {
 		"release": "standard-version --release-as",
-		"build": "esbuild source/modules-bundle.js --bundle --format=esm --sourcemap --outfile=public/bundle.js --target=es2017",
-		"build:min": "esbuild source/modules-bundle.js --bundle --format=esm --minify --sourcemap --target=es2017 --outfile=public/bundle.min.js --target=es2017",
-		"build:nomap": "esbuild source/modules-bundle.js --bundle --format=esm --outfile=public/bundle.js --target=es2017",
-		"build:min:nomap": "esbuild source/modules-bundle.js --bundle --format=esm --minify --target=es2017 --outfile=public/bundle.min.js --target=es2017",
-		"build:watch": "esbuild source/modules-bundle.js --bundle --format=esm --sourcemap --outfile=public/bundle.js --target=es2017 --watch"
+		"build": "esbuild source/modules-bundle.js --bundle --format=esm --log-limit=0 --sourcemap --outfile=public/bundle.js --target=node24",
+		"build:min": "esbuild source/modules-bundle.js --bundle --format=esm --log-limit=0 --minify --sourcemap --target=node24 --outfile=public/bundle.min.js",
+		"build:nomap": "esbuild source/modules-bundle.js --bundle --format=esm --log-limit=0 --outfile=public/bundle.js --target=node24",
+		"build:min:nomap": "esbuild source/modules-bundle.js --bundle --format=esm --log-limit=0 --minify --target=node24 --outfile=public/bundle.min.js",
+		"build:watch": "esbuild source/modules-bundle.js --bundle --format=esm --log-limit=0 --sourcemap --outfile=public/bundle.js --target=node24 --watch"
 	},
 	"devDependencies": {
 		"esbuild": "0.27.2"
+	},
+	"dependencies": {
+		"@huggingface/jinja": "^0.5.6",
+		"@huggingface/transformers": "^3.8.1"
 	}
 }

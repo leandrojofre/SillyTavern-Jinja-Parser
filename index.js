@@ -1,6 +1,15 @@
+import {AutoTokenizer, transformersEnv} from './public/bundle.min.js';
+import {processChatTemplate} from './source/js/tokenizer-fetch.js';
+
 export {
     // ST re-exports
+    t,
     // Native exports
+    importLocalFile,
+    extensionName,
+    extensionFolderPath,
+    AutoTokenizer,
+    transformersEnv,
     // HTML exports
 };
 
@@ -197,8 +206,75 @@ function parseValue(value, force) {
     return String(value);
 }
 
+async function exportJsonFileData(data) {
+    try {
+        const exportData = JSON.stringify(data, null, 2);
+
+        const blob = new Blob([exportData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tokenizer.json`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+
+        toastr.success(t`File exported successfully`, extensionName);
+    } catch (err) {
+        toastr.error(`Failed to export the file`, extensionName);
+        error(err);
+    }
+}
+
 /**
- * MARK:Interface
+ * @param {string} inputId
+ * @returns {Promise<Object|string>}
+ */
+async function importLocalFile(fileId, {isLocalPath = false} = {}) {
+    try {
+        const file = isLocalPath ?
+            await fetch(fileId) :
+            document.getElementById(fileId)?.files[0];
+
+        if (!file) return;
+
+        const content = await file.text();
+        const importedData = file.type === 'application/json' ? JSON.parse(content) : parseValue(content);
+
+        log({ file, importedData });
+
+        return importedData;
+    } catch (error) {
+        toastr.error(`Failed to import data from files`, extensionName);
+        throw error;
+    }
+}
+
+async function initExtension() {
+    const $settings = await HTML_TEMPLATES.get('settings');
+    const $jinjaParserBox = await HTML_TEMPLATES.get('tonkenizerTest');
+
+    $settings
+        .find('#jinja-parser-debug-row')
+        .before($jinjaParserBox);
+
+    $jinjaParserBox
+        .find('#jinja-parser-output-parse')
+        .on('click', processChatTemplate);
+
+    $jinjaParserBox
+        .find('label[for] button')
+        .on('click', function(e) {
+            $(e.currentTarget).parent().trigger('click');
+        })
+}
+
+// * MARK:Interface
+
+/**
  * @type {JinjaParserInterface}
  */
 globalThis.JinjaParser = {
@@ -308,4 +384,5 @@ eventSource.once(eventTypes.APP_INITIALIZED, async function() {
     extensionSettings = context().extensionSettings[extensionName];
 
     await loadSettingsMenu();
+    await initExtension();
 });

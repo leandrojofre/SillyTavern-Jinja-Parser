@@ -11,10 +11,11 @@ export {
     processChatTemplate,
 };
 
-async function processChatTemplate() {
+async function processChatTemplate({forceLocal = false} = {}) {
+    const isOfflineMode = $('#jinja-parser-offline-mode').prop('checked') || forceLocal;
+
     try {
         const model_id = $('#jinja-parser-model-id').val() || '';
-        const isOfflineMode = $('#jinja-parser-offline-mode').prop('checked');
         const chatTemplatePath = isOfflineMode ? `./${extensionFolderPath}/tokenizers/${model_id}/chat_template.jinja` : 'jinja-parser-chat-template';
 
         if (!model_id) return toastr.error(t`Provide a valid model ID`, extensionName);
@@ -50,7 +51,8 @@ async function processChatTemplate() {
             .find('.jinja-parser-token-ids')
             .text(tokenIds);
     } catch (err) {
-        toastr.error(t`The tokenizer and/or the template could not be loaded`, extensionName);
+        toastr.error(t`The tokenizer and/or the template could not be loaded in ${isOfflineMode ? 'offline' : 'online'} mode`, extensionName);
         JinjaParser.error(err);
+        processChatTemplate({forceLocal: true});
     }
 }

@@ -1,6 +1,6 @@
-.EXTENSION_NAME-custom-css {
-    --EXTENSION_NAME-separator-bottom: linear-gradient(90deg, var(--transparent), color-mix(in srgb, var(--SmartThemeBodyColor), transparent 80%), var(--transparent)) 1;
-    --EXTENSION_NAME-border-color: var(--SmartThemeBorderColor);
+.jinja-parser-custom-css {
+    --jinja-parser-separator-bottom: linear-gradient(90deg, var(--transparent), color-mix(in srgb, var(--SmartThemeBodyColor), transparent 80%), var(--transparent)) 1;
+    --jinja-parser-border-color: var(--SmartThemeBorderColor);
 
     .d-none {
         display: none !important;
@@ -19,7 +19,7 @@
 
     .separator-bottom {
         border-bottom: 1px solid;
-        border-image: var(--EXTENSION_NAME-separator-bottom) !important;
+        border-image: var(--jinja-parser-separator-bottom) !important;
         padding-bottom: 5px;
         margin-bottom: 5px;
         border-radius: 0;
@@ -92,6 +92,6 @@
     .border {
         border: solid;
         border-width: 1px;
-        border-color: var(--EXTENSION_NAME-border-color) !important;
+        border-color: var(--jinja-parser-border-color) !important;
     }
 }

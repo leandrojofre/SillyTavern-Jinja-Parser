@@ -7,7 +7,7 @@ export {
 // * MARK:Types Definitions
 
 /**
- * @typedef {Object} ExtensionNameInterface
+ * @typedef {Object} JinjaParserInterface
  * @property {(...mess: any[]) => void} log
  * @property {(...mess: any[]) => void} debug
  * @property {(...mess: any[]) => void} error
@@ -15,7 +15,6 @@ export {
 
 /**
  * @typedef {Object} ExtensionSettings
- * @property {boolean} enabled
  * @property {boolean} debug
  */
 
@@ -55,20 +54,19 @@ const debounceTimeout = Object.freeze({
     LONG: 700
 });
 
-const extensionName = "Extension-Template";
-const extensionFullName = 'SillyTavern-Extension-Template';
+const extensionName = "Jinja-Parser";
+const extensionFullName = 'SillyTavern-Jinja-Parser';
 const metadataName = extensionName.toLowerCase().replaceAll('-', '_');
 const htmlSuffix = extensionName.toLowerCase();
 const extensionFolderPath = `scripts/extensions/third-party/${extensionFullName}`;
 
 /** @type {ExtensionSettings} */
-const extensionSettings = extension_settings[extensionName];
-
-/** @type {ExtensionSettings} */
 const defaultSettings = {
-    enabled: true,
     debug: false
 };
+
+/** @type {ExtensionSettings} */
+let extensionSettings = lodash.cloneDeep(defaultSettings);
 
 const HTML_TEMPLATES = {
 	/**
@@ -86,14 +84,14 @@ const HTML_TEMPLATES = {
                     HTML_TEMPLATES[fileName] = $(response);
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
-                    ExtensionName.error({jqXHR, textStatus, errorThrown});
+                    JinjaParser.error({jqXHR, textStatus, errorThrown});
                 });
         }
 
         const $file = HTML_TEMPLATES[fileName];
 
         if (!$file) {
-            toastr.warning(t`HTML template could not be loaded`, extensionName);
+            toastr.warning(t`HTML template --${fileName}-- could not be loaded`, extensionName);
             return $();
         }
 
@@ -106,19 +104,19 @@ const HTML_TEMPLATES = {
 // * MARK:Debugs methods
 
 function log(...mess) {
-    if (!extensionSettings.enabled || !extensionSettings.debug) return;
+    if (!extensionSettings.debug) return;
 
     console.log(`[${extensionName}]`, ...mess);
 };
 
 function debug(...mess) {
-    if (!extensionSettings.enabled || !extensionSettings.debug) return;
+    if (!extensionSettings.debug) return;
 
     console.debug(`[${extensionName}]`, ...mess);
 };
 
 function error(...mess) {
-    if (!extensionSettings.enabled || !extensionSettings.debug) return;
+    if (!extensionSettings.debug) return;
 
     console.error(`[${extensionName}]`, ...mess);
 };
@@ -201,9 +199,9 @@ function parseValue(value, force) {
 
 /**
  * MARK:Interface
- * @type {ExtensionNameInterface}
+ * @type {JinjaParserInterface}
  */
-globalThis.ExtensionName = {
+globalThis.JinjaParser = {
     log,
     debug,
     error
@@ -274,8 +272,6 @@ function settingsNumberButton(event) {
 
 /**	Logs setting's values. */
 function displaySettings() {
-    debug(`The extension is ${extensionSettings.enabled ? 'enabled' : 'disabled'}`);
-
     debug(`Debug mode is ${extensionSettings.debug ? 'active' : 'not active'}`);
     debug(structuredClone(extensionSettings));
 }
@@ -284,55 +280,32 @@ function displaySettings() {
 async function loadSettingsMenu() {
     const settingsHtml = await HTML_TEMPLATES.get('settings');
 
-    // extensions_settings2 is an alternative
-    $('#extensions_settings').append(settingsHtml);
+    $('#extensions_settings2').append(settingsHtml);
 
-    $(`#${htmlSuffix}-enabled`).on('input', settingsBooleanButton);
     $(`#${htmlSuffix}-debug`).on('input', settingsBooleanButton);
     $(`#${htmlSuffix}-check-configuration`).on('click', displaySettings);
 
     log('Settings menu created');
 
-    $(`#${htmlSuffix}-enabled`).prop('checked', extensionSettings.enabled).trigger('input');
     $(`#${htmlSuffix}-debug`).prop('checked', extensionSettings.debug).trigger('input');
 
     log('Settings values initialized', extensionSettings);
-}
-
-/** Append settings menu on ST and set listeners. */
-async function loadHTMLSettings() {
-    const settingsHtml = await $.get(`${extensionFolderPath}/settings.html`);
-
-    $("#extensions_settings").append(settingsHtml);
-
-    // Event Listeners for the extension HTML
-    $("#EXTENSION_NAME-activate-extension").on("input", settingsBooleanButton);
-    $("#EXTENSION_NAME-activate-debug").on("input", settingsBooleanButton);
-    $("#EXTENSION_NAME-check-configuration").on("click", displaySettings);
-
-    log("loadHTMLSettings");
-}
-
-/** Init setting values on the menu */
-function setSettings() {
-    $("#EXTENSION_NAME-activate-extension").prop("checked", extensionSettings.enabled).trigger("input");
-    $("#EXTENSION_NAME-activate-debug").prop("checked", extensionSettings.debug).trigger("input");
-
-    log("setSettings", extensionSettings);
 }
 
 // * MARK:Initialize Extension
 
 eventSource.once(eventTypes.APP_INITIALIZED, async function() {
     if (!context().extensionSettings[extensionName]) {
-        context().extensionSettings[extensionName] = structuredClone(defaultSettings);
+        context().extensionSettings[extensionName] = lodash.cloneDeep(defaultSettings);
     }
 
     for (const key of Object.keys(defaultSettings)) {
         if (context().extensionSettings[extensionName][key] === undefined) {
-            context().extensionSettings[extensionName][key] = defaultSettings[key];
+            context().extensionSettings[extensionName][key] = lodash.cloneDeep(defaultSettings[key]);
         }
     }
+
+    extensionSettings = context().extensionSettings[extensionName];
 
     await loadSettingsMenu();
 });
